@@ -40,7 +40,7 @@ The remaining **three moderate audit findings** are one advisory propagated thro
 - No smart-contract escrow is deployed. The optional adapter is custodial and restricted to Devnet.
 - No production security audit, accessibility certification, legal assessment or live merchant pilot was performed.
 - Delayed/expired deposits and ambiguous/expired refunds require manual reconciliation. The prototype prefers holding a container reservation over risking duplicate payouts.
-- No GitHub remote or public deployment is configured.
+- The source remote is `https://github.com/blitzlive/SolanaChallange2026.git`. No public app deployment is configured.
 
 ## Reproduction
 

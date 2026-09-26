@@ -1,6 +1,8 @@
 # PfandLoop · SolanaChallange2026
 
-A small reusable-container deposit prototype for cafes and festivals. German browser UI, persistent loans, cross-location returns, receipt recovery, cup QR links and an optional Solana Devnet payment adapter.
+PfandLoop is a reusable-container deposit MVP for cafes, buffets and festivals, with cross-location returns, merchant-confirmed refunds, customer loan history and optional Solana Devnet test payments.
+
+Start with the [introduction, usage walkthrough and challenge response](introduction.md).
 
 **Default: interactive simulation, no money or wallet required.** Customer deposit prices are **€1 for coffee**, **€2 for festival** and **€5 for lunch**. The demo simulates EUR balances. A small SOL equivalent uses the labelled illustrative rate **1 SOL = €100**, not a live quote or payment conversion. The optional Devnet adapter still transfers 1/2/5 **test USDC** in a custodial operator wallet; its actual test currency is shown separately. A custom escrow program is **not** implemented or deployed. This is not a mainnet payment product.
 
@@ -113,4 +115,4 @@ Browser tests use installed Microsoft Edge (`msedge`) and start an isolated prod
 - [Resource review, ideas and pilot pitch](docs/research-and-pitch.md)
 - [Verification and security notes](docs/verification.md)
 
-This is a standalone local Git repository. No GitHub remote or public deployment has been created.
+Source repository: [blitzlive/SolanaChallange2026](https://github.com/blitzlive/SolanaChallange2026). No public app deployment has been created.
