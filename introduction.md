@@ -2,11 +2,11 @@
 
 PfandLoop is a reusable-container deposit MVP for cafes, buffets and festivals. Customers borrow at one participating business and return at another. Staff confirm physical receipt, and the deposit returns to the original payer. A customer wallet shows every past and current loan, with a CSV export for a portable overview.
 
-## Our response to the Solana challenge
+## Our response to the WHU Hackathon 2026 Solana challenge
 
 **Our proposal is to connect a familiar everyday action—returning a reusable cup—to a shared digital payment flow.** The deposit follows the borrower across participating businesses instead of requiring the original checkout location to handle the return.
 
-The exact challenge brief and judging criteria are not included in this repository. This section presents the project's contribution based on the current product brief; it does not claim compliance with an unverified track or official rubric.
+The supplied challenge asks participants to identify a real problem, build a usable MVP with at least one Solana feature, and explain its value and route to first users. PfandLoop focuses on one complete feature: **borrow a reusable container at one business, return it at another, and refund the original payer after staff confirmation**. Its Solana feature is payments using the existing token and memo programs on Devnet.
 
 | Question | PfandLoop's answer |
 | --- | --- |
@@ -18,6 +18,43 @@ The exact challenge brief and judging criteria are not included in this reposito
 | What would a first pilot test? | One event with two stands: return completion, staff effort, customer onboarding and reconciliation, compared with existing cash/card processes. |
 
 The intended benefit is interoperability between locations, not a claim that existing reuse systems require an app or that blockchain is necessary for every deposit. The demo works without blockchain; a pilot must establish whether shared wallet-based settlement adds enough value to justify onboarding and custody costs.
+
+### How the project addresses the judging criteria
+
+| Challenge criterion | Product response | Evidence and remaining work |
+| --- | --- | --- |
+| A useful idea: a clear problem | People at multi-stand events need an easy way to return containers; participating businesses need to know which deposit to release and to whom. PfandLoop links the registered container, original payer and return confirmation. | The workflow is implemented. Interviews must validate the frequency and cost of this problem; no customer traction is claimed. |
+| A working prototype: demonstrate the core idea | A customer borrows at one location and staff at another confirm receipt. The original deposit is released and the loan remains in the customer's demo history. | Local lifecycle, browser and payment-adapter tests are recorded. A live Devnet deposit/refund demonstration is still outstanding; simulation alone does not demonstrate the required Solana use. |
+| A clear role for Solana | A shared token-payment rail returns deposits to the original wallet, with transaction signatures that can be inspected independently of the app. Staff at the receiving location trigger the common treasury's refund. | Devnet test-USDC adapter is implemented. Solana verifies payment, not physical return. Custody is centralized; merchant accounting and a custom escrow are not implemented. |
+| Potential to grow: who would use it and why? | Start with one campus event and two stands. If customers complete returns easily and staff find the flow useful, extend the same registered-container network to nearby cafes and buffets. | Growth depends on measured operational benefit, reliable recovery, merchant onboarding, cleaning logistics and manageable wallet friction. No partnerships or adoption are assumed. |
+
+### Making it understandable for intended users
+
+The customer page leads with familiar €1/€2/€5 catalog prices, a container choice and one borrowing action. The business page separates staff sign-in and physical-return confirmation. The demo wallet provides current and historical loans plus a CSV export. The interface is German and has been checked at phone and desktop sizes. Blockchain-specific signing appears only in the explicit Devnet flow; that flow labels its actual test-USDC transfers separately from euro catalog prices. Mainstream wallet onboarding remains a pilot question.
+
+### Reaching the first users
+
+1. Approach one campus event organizer through the university entrepreneurship community and ask for introductions to two drink or food stands. This is a recruitment plan, not an existing agreement.
+2. Interview the organizer and staff about returns and end-of-day reconciliation. Observe their current cash/card workflow before assuming it needs replacement.
+3. Show the two-location prototype and recruit a small supervised test. The current software has three registered containers; adding a larger inventory comes after this first test. Keep Devnet tokens valueless and separate from real event deposits.
+4. Record checkout/return completion, time spent by staff, failed refunds, wallet-onboarding abandonment and reconciliation effort. Ask customers whether returning at either stand made the experience easier.
+5. Expand to additional campus locations only if the observed benefit outweighs extra steps and support effort. A real-money pilot needs separate custody, recovery and operational review.
+
+### Suggested submission demonstration
+
+First show the customer and business screens and explain the physical-return trust boundary. Then demonstrate a **real Devnet test transaction**: borrow with Phantom, verify the finalized test-USDC deposit, log in as the other business, confirm receipt and verify the finalized refund to the same customer wallet. Show the two transaction signatures in Explorer. Finally, use the separately labelled demo mode to show the complete loan history and CSV feature; real-wallet aggregate history is not yet available.
+
+Prepare funded test wallets and complete this walkthrough before claiming the Solana requirement has been demonstrated. Keep credentials and private receipt IDs out of recordings. The existing adapter includes a loan-specific memo on-chain; receipts therefore need a privacy review before any real-money deployment.
+
+### Submission requirements from the supplied brief
+
+- **WHU Hackathon 2026 participation:** the submitting team must confirm its eligibility; this repository does not establish participation.
+- **Working prototype using Solana:** the adapter and local tests exist; complete and record the live Devnet walkthrough above. The offline demo and illustrative SOL conversion alone are not sufficient evidence.
+- **Pitch-deck link:** create a shareable deck and submit its URL in the **“Bounty submission link”** field. No deck URL or submission has been recorded here; this introduction is not a replacement for the required deck.
+- **Public GitHub repository:** use [blitzlive/SolanaChallange2026](https://github.com/blitzlive/SolanaChallange2026) and confirm that judges can access it without signing in.
+- **Follow Superteam Germany on X:** the submitting participant must follow [@SuperteamDE](https://x.com/SuperteamDE); completion has not been verified.
+
+A concise deck can cover five slides: problem and first users; the two-location return flow; working prototype and demonstration; Solana's payment role and current limits; first-user recruitment and next milestones.
 
 ## Run the app
 

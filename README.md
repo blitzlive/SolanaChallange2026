@@ -2,7 +2,7 @@
 
 PfandLoop is a reusable-container deposit MVP for cafes, buffets and festivals, with cross-location returns, merchant-confirmed refunds, customer loan history and optional Solana Devnet test payments.
 
-Start with the [introduction, usage walkthrough and challenge response](introduction.md).
+Start with the [introduction, usage walkthrough and WHU Hackathon challenge response](introduction.md). A short [architecture sketch and project instructions](instructions.md) explains the components and data flows.
 
 **Default: interactive simulation, no money or wallet required.** Customer deposit prices are **€1 for coffee**, **€2 for festival** and **€5 for lunch**. The demo simulates EUR balances. A small SOL equivalent uses the labelled illustrative rate **1 SOL = €100**, not a live quote or payment conversion. The optional Devnet adapter still transfers 1/2/5 **test USDC** in a custodial operator wallet; its actual test currency is shown separately. A custom escrow program is **not** implemented or deployed. This is not a mainnet payment product.
 
