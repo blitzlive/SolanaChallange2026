@@ -2,6 +2,25 @@
 
 ## Verified locally on 2026-09-26
 
+### Customer/business profiles, EUR presentation and full history
+
+- 36 unit/API/payment tests passed. New coverage verifies both return endpoints reject unauthenticated customers, merchant session location binding/logout/expiry, every merchant accepting every registered cup from another issue site, repeat-loan persistence across database reopen, history isolation and CSV escaping/capability exclusion.
+- `npm run build` passed, including strict TypeScript checks.
+- All 6 Edge browser tests passed. Added a separate browser business account accepting a customer's cup, logout, repeat borrowing, full history/current-loan filtering, downloaded CSV content and labelled SOL estimate. Existing QR, pricing, refunds, reload, error/retry and 375/768/1024/1440px checks remain covered.
+- Opened and inspected desktop customer, business login, confirmed return, wallet and mobile festival screenshots. No observed overlap or horizontal overflow. Active festival artwork loads at 1536 × 1024; small selector icons remain intact.
+- No live rate/network dependency added: the SOL display explicitly uses an illustrative 1 SOL = EUR 100 rate. Currency changes affect demo presentation only; Devnet still uses labelled test USDC. Live FX, real SOL settlement, authenticated real-wallet history and production staff accounts remain unimplemented.
+- No live Devnet transfer was performed. Existing original-payer, exact-message and uncertain-refund safeguards remain covered by local tests. Public demo login is simulated; Devnet business profiles share the existing operator credential. Eight-hour sessions live only in server/page memory and require login after restart/refresh.
+
+### Per-container pricing / demo wallet / festival update
+
+- 31 server/payment tests passed, including 1/2/5-USDC pricing, historical 3-USDC migration, repeatable migration, original-amount refunds, demo-wallet balance/history isolation and exact token instructions for each price and legacy amount.
+- Production build and strict TypeScript check passed.
+- All 5 Edge browser tests passed: coffee/festival/lunch prices and receipts, wallet opening/closing, available balance changes and refunds, wallet persistence after reload, error/retry, QR and responsive layouts at 375/768/1024/1440px.
+- Wallet screenshots at desktop/mobile and the festival mobile screenshot were opened and inspected; no observed clipping or horizontal overflow. The generated festival image loads successfully from the local project asset.
+- Running local API on port 5174 returns 1,000,000 / 2,000,000 / 5,000,000 atomic units for the three containers. Existing loan data is preserved.
+
+### Initial bootstrap baseline
+
 - TypeScript strict typecheck passed.
 - 22 unit/API tests passed: full loan lifecycle, concurrent borrowing, unconfirmed payments, failed verification, persistent state after database reopen, private receipt projection, signature uniqueness, preserved refund transaction across timeout/retry, original refund recipient, staff authorization, physical receipt requirement, input validation, cross-origin rejection and security headers.
 - Production build passed with Vite 8.3.1 and React 19.3.0.

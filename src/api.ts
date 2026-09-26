@@ -1,4 +1,5 @@
 import type { PublicConfig, BorrowResult, Receipt } from '../shared/model';
+import { demoWalletIdSchema } from '../shared/model';
 
 export async function request<T>(path: string, body?: unknown, token?: string): Promise<T> {
   const response = await fetch(`/api${path}`, {
@@ -21,4 +22,13 @@ export function readSaved<T>(key: string): T | null {
 export function save(key: string, value: unknown) {
   try { localStorage.setItem(`pfandloop:${key}`, JSON.stringify(value)); }
   catch { /* The visible receipt remains usable when browser storage is unavailable. */ }
+}
+
+let inMemoryDemoId: string | undefined;
+export function getDemoIdentity() {
+  const stored = demoWalletIdSchema.safeParse(readSaved<string>('demo-wallet'));
+  const id = stored.success ? stored.data : inMemoryDemoId ?? `demo-${crypto.randomUUID()}`;
+  inMemoryDemoId = id;
+  save('demo-wallet', id);
+  return id;
 }

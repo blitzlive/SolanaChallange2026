@@ -1,0 +1,84 @@
+.cup-option .cup-price { margin-top: 5px; font-size: 10px; font-weight: 500; color: #49603e; }
+.festival-scene { margin: 28px 0 0; overflow: hidden; border-radius: 12px; background: #eef0e3; border: 1px solid #dce1d1; }
+.festival-scene img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: cover; }
+.festival-scene figcaption { padding: 17px 20px; color: var(--ink); }
+.festival-scene figcaption span { display: block; font-size: 9px; letter-spacing: 1.8px; color: #647555; }
+.festival-scene figcaption strong { display: block; font-family: var(--serif); font-size: 23px; font-weight: 400; margin-top: 7px; }
+.festival-scene figcaption small { display: block; font-size: 9px; margin-top: 7px; color: var(--muted); }
+.wallet-dialog { width: min(510px, calc(100% - 32px)); max-height: calc(100dvh - 40px); overflow-y: auto; overscroll-behavior: contain; border: 1px solid var(--line); border-radius: 15px; padding: 32px; background: var(--paper); color: var(--ink); }
+.wallet-dialog::backdrop { background: #153d3277; backdrop-filter: blur(3px); }
+.wallet-dialog h2 { font-family: var(--serif); font-size: 32px; margin: 20px 0 12px; letter-spacing: -1px; }
+.wallet-description { font-size: 13px; line-height: 1.8; color: var(--muted); }
+.wallet-balance { background: var(--forest); color: #fff; border-radius: 10px; padding: 24px; margin-top: 22px; }
+.wallet-balance>span { font-size: 12px; color: #dde7d6; }
+.wallet-balance>strong { display: block; font-size: 40px; font-weight: 500; letter-spacing: -1px; margin: 8px 0 22px; }
+.wallet-balance strong small { font-size: 13px; font-weight: 400; letter-spacing: 0; white-space: nowrap; }
+.wallet-balance>div { border-top: 1px solid #5e7d64; padding-top: 16px; display: flex; justify-content: space-between; gap: 12px; font-size: 12px; }
+.wallet-balance b { font-weight: 500; white-space: nowrap; }
+.wallet-disclaimer { margin: 14px 0 25px; font-size: 11px; line-height: 1.8; color: var(--muted); }
+.wallet-dialog h3 { font-family: var(--serif); font-size: 23px; margin-bottom: 14px; }
+.wallet-empty { border: 1px dashed var(--line); border-radius: 8px; padding: 23px; text-align: center; color: var(--muted); }
+.wallet-empty p { font-size: 13px; color: var(--ink); margin: 10px 0 7px; }
+.wallet-empty>span { display: block; font-size: 11px; line-height: 1.8; }
+.wallet-history { padding: 0; margin: 0; list-style: none; }
+.wallet-history li { display: flex; align-items: center; gap: 12px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+.movement-icon { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: #efe9dc; flex-shrink: 0; }
+.movement-icon.refund { background: #e3ecd6; }
+.wallet-history li>div { flex: 1; min-width: 0; }
+.wallet-history strong { display: block; font-weight: 500; font-size: 12px; }
+.wallet-history li>div>span { display: block; font-size: 10px; margin-top: 6px; color: var(--muted); }
+.wallet-history b { font-size: 15px; font-weight: 500; text-align: right; white-space: nowrap; }
+.wallet-history b small { display: block; font-size: 9px; font-weight: 400; margin-top: 4px; color: var(--muted); }
+.wallet-loading { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 18px 0; }
+.wallet-refresh { width: 100%; margin: 22px 0 14px; }
+.workspace-navigation { display: flex; gap: 6px; margin: -12px 0 28px; }
+.workspace-navigation a { min-height: 44px; padding: 13px 18px; border-radius: 6px; font-size: 12px; }
+.workspace-navigation a[aria-current=page] { background: #e7ecdc; font-weight: 600; }
+.workspace-navigation a:hover { background: #e7ecdc; }
+.header nav a[aria-current=page] { color: var(--forest); text-decoration: underline; text-underline-offset: 10px; }
+.profile-label { font-size: 11px; color: var(--muted); }
+.merchant-login>.eyebrow { margin-bottom: 22px; }
+.merchant-login .field { margin: 20px 0; }
+.merchant-profile { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 18px; background: #e9eedf; border-radius: 9px; margin-bottom: 15px; }
+.merchant-profile strong { display: block; font-size: 14px; margin: 7px 0; }
+.merchant-profile small { font-size: 10px; color: var(--muted); }
+.return-guidance { display: flex; align-items: flex-start; gap: 8px; font-size: 11px; line-height: 1.7; padding: 12px; background: #f1f4e8; border-radius: 6px; }
+.return-guidance svg { flex-shrink: 0; margin-top: 2px; }
+.deposit-value { text-align: right; }
+.sol-estimate { display: block; font-size: 11px; font-weight: 400; color: var(--muted); margin-top: 8px; line-height: 1.6; }
+.sol-estimate small { display: block; font-size: 9px; max-width: 180px; }
+.deposit-summary .sol-estimate { font-size: 11px; }
+.deposit-value strong { font-size: 30px; }
+.wallet-balance .sol-estimate { color: #e3ecd6; margin: -12px 0 18px; }
+.wallet-balance .sol-estimate small { max-width: none; }
+.wallet-identity { margin: 20px 0; font-size: 10px; color: var(--muted); }
+.wallet-identity code { display: block; margin-top: 6px; font-size: 11px; color: var(--ink); overflow-wrap: anywhere; }
+.history-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.history-heading h3 { margin-bottom: 0; }
+.history-tabs { margin: 16px 0; }
+.history-tabs button { font-size: 11px; }
+.wallet-loans { margin-bottom: 28px; }
+.loan-list { list-style: none; padding: 0; margin: 0; }
+.loan-list li { padding: 16px 0; border-bottom: 1px solid var(--line); }
+.loan-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.loan-heading strong { font-size: 12px; }
+.loan-status { font-size: 9px; padding: 5px 8px; border-radius: 4px; background: #eee7d8; white-space: nowrap; }
+.loan-status.returned { background: #e3ecd6; }
+.loan-list p { font-size: 10px; margin: 8px 0 14px; }
+.loan-list p span { color: var(--muted); }
+.loan-list dl { margin: 0; font-size: 10px; }
+.loan-list dl>div { display: flex; justify-content: space-between; gap: 10px; margin-top: 8px; }
+.loan-list dt { color: var(--muted); }
+.loan-list dd { text-align: right; margin: 0; line-height: 1.6; }
+.loan-list dd span { display: block; color: var(--muted); }
+@media(max-width:720px) {
+  .festival-scene { margin-top: 23px; }
+  .festival-scene figcaption { padding: 15px 17px; }
+  .festival-scene figcaption strong { font-size: 21px; }
+  .wallet-dialog { padding: 24px; }
+  .wallet-dialog h2 { font-size: 28px; }
+  .wallet-dialog>.eyebrow { padding-right: 28px; }
+  .wallet-balance { padding: 20px; }
+  .wallet-balance>strong { font-size: 35px; }
+  .wallet-history li { gap: 8px; }
+}

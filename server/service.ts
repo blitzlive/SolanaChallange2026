@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { borrowSchema, type BorrowResult, type LocationId, type Mode } from '../shared/model';
+import { borrowSchema, DEPOSITS_ATOMIC, type BorrowResult, type LocationId, type Mode } from '../shared/model';
 import { receipt, Store, type Loan } from './store';
 
 export class AppError extends Error {
@@ -30,8 +30,12 @@ export class LoanService {
     const data = borrowSchema.parse(input);
     return this.lock(data.cupId, async () => {
       if (this.store.active(data.cupId)) throw new AppError(409, 'Dieser Behälter ist bereits reserviert oder ausgeliehen.');
+      const depositAtomic = DEPOSITS_ATOMIC[data.cupId];
+      if (this.mode === 'demo' && this.store.demoWallet(data.payer).availableAtomic < depositAtomic)
+        throw new AppError(409, 'Dein Demo-Guthaben reicht nicht aus. Gib zuerst einen Behälter zurück.');
       const loan: Loan = {
         id: randomUUID(), cupId: data.cupId, payer: data.payer, mode: this.mode, status: 'reserved',
+        depositAtomic,
         borrowedAt: new Date().toISOString(), returnedAt: null, borrowLocation: data.location,
         returnLocation: null, depositSignature: null, refundSignature: null,
         depositMessage: null, transaction: null, refundRaw: null,

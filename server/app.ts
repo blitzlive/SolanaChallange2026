@@ -1,11 +1,12 @@
-import { timingSafeEqual } from 'node:crypto';
-import express, { type ErrorRequestHandler, type RequestHandler } from 'express';
+import express, { type ErrorRequestHandler } from 'express';
 import helmet from 'helmet';
 import { rateLimit } from 'express-rate-limit';
 import { ZodError } from 'zod';
-import { confirmSchema, cupIdSchema, loanIdSchema, locations, returnSchema } from '../shared/model';
+import { confirmSchema, cupIdSchema, demoWalletIdSchema, loanIdSchema, locations, returnSchema } from '../shared/model';
 import { AppError, LoanService } from './service';
 import { receipt } from './store';
+import { merchantSessions } from './merchant-sessions';
+import { walletCsv } from './wallet-csv';
 
 export function createApp(service: LoanService, options: { origin: string; merchantToken?: string; production?: boolean }) {
   const app = express();
@@ -29,15 +30,18 @@ export function createApp(service: LoanService, options: { origin: string; merch
     }
     next();
   });
-  const merchant: RequestHandler = (req, _res, next) => {
-    if (service.mode === 'demo') return next();
-    const supplied = Buffer.from(req.headers.authorization?.replace(/^Bearer /, '') ?? '');
-    const expected = Buffer.from(options.merchantToken ?? '');
-    if (!expected.length || supplied.length !== expected.length || !timingSafeEqual(supplied, expected))
-      return next(new AppError(401, 'Bitte einen gültigen Betreiber-Schlüssel eingeben.'));
-    next();
-  };
-  app.get('/api/config', (_req, res) => res.json({ mode: service.mode, deposit: 3, cups: service.store.cups(), locations }));
+  const merchant = merchantSessions(app, service.mode, options.merchantToken);
+  app.get('/api/config', (_req, res) => res.json({ mode: service.mode, cups: service.store.cups(), locations }));
+  app.get(['/api/demo-wallet', '/api/demo-wallet/export.csv'], (req, res) => {
+    if (service.mode !== 'demo') throw new AppError(404, 'Die Demo-Wallet ist nur im Demo-Modus verfügbar.');
+    const parsed = demoWalletIdSchema.safeParse(req.headers.authorization?.replace(/^Bearer /, ''));
+    if (!parsed.success) throw new AppError(401, 'Demo-Wallet nicht erkannt. Bitte über den Wallet-Button öffnen.');
+    const wallet = service.store.demoWallet(parsed.data);
+    if (req.path.endsWith('/export.csv')) {
+      res.setHeader('Content-Disposition', 'attachment; filename="pfandloop-becherhistorie.csv"');
+      res.type('text/csv').send(walletCsv(wallet));
+    } else res.json(wallet);
+  });
   app.post('/api/loans', async (req, res) => res.status(201).json(await service.borrow(req.body)));
   app.get('/api/loans/:id', (req, res) => {
     const loan = service.get(loanIdSchema.parse(req.params.id));

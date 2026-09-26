@@ -1,6 +1,6 @@
 import { ArrowUpRight, Check, Clock, RotateCcw } from 'lucide-react';
 import type { Receipt } from '../shared/model';
-import { locations } from '../shared/model';
+import { formatEuro, formatUsdc, locations } from '../shared/model';
 
 export function ReceiptCard({ receipt, onRefresh, busy }: { receipt: Receipt; onRefresh: () => void; busy: boolean }) {
   const returned = receipt.status === 'returned';
@@ -9,7 +9,7 @@ export function ReceiptCard({ receipt, onRefresh, busy }: { receipt: Receipt; on
   return <section className={`receipt ${returned ? 'returned' : ''}`} aria-label="Pfandbeleg">
     <div className="receipt-heading"><span className="receipt-icon">{pending ? <Clock size={22} /> : <Check size={22} />}</span>
       <div><span className="eyebrow">DEIN PFANDBELEG</span><h3>{returned ? 'Der Kreis ist geschlossen.' : receipt.status === 'reserved' ? 'Zahlung noch offen.' : receipt.status === 'refund_pending' ? 'Rückzahlung wird bestätigt.' : 'Dein Becher. Dein Pfand.'}</h3></div></div>
-    <dl><div><dt>Behälter</dt><dd>{receipt.cupId}</dd></div><div><dt>{returned ? 'Zurückgezahlt' : 'Pfandbetrag'}</dt><dd>3,00 {receipt.mode === 'demo' ? 'Demo-USDC' : 'Test-USDC'}</dd></div>
+    <dl><div><dt>Behälter</dt><dd>{receipt.cupId}</dd></div><div><dt>{returned ? 'Zurückgezahlt' : 'Pfandbetrag'}</dt><dd>{receipt.mode === 'demo' ? `${formatEuro(receipt.depositAtomic)} · Simulation` : `${formatUsdc(receipt.depositAtomic)} Test-USDC`}</dd></div>
       <div><dt>{returned ? 'Rückgabestelle' : 'Ausgabestelle'}</dt><dd>{locations.find(l => l.id === (receipt.returnLocation ?? receipt.borrowLocation))?.name}</dd></div>
       <div><dt>Empfänger</dt><dd className="address" title={receipt.payer}>{receipt.mode === 'demo' ? 'Deine Demo-Wallet' : `${receipt.payer.slice(0, 8)}…${receipt.payer.slice(-6)}`}</dd></div></dl>
     <p className="fineprint">{receipt.mode === 'demo' ? 'Simulierter Beleg. Es wurde kein Geld bewegt.' : 'Testgeld auf Solana Devnet. Verwahrung durch die Betreiber-Wallet.'}</p>

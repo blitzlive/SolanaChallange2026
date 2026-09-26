@@ -1,4 +1,58 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
+import { readFile } from 'node:fs/promises';
+
+async function openBusiness(page: Page) {
+  await page.getByRole('link', { name: 'Geschäftsseite', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Rückgabe bestätigen', exact: true })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Demo-Geschäft anmelden' }).click();
+  await expect(page.getByText('ANGEMELDETES GESCHÄFT · DEMO', { exact: true })).toBeVisible();
+}
+
+test('separate business account confirms returns; wallet preserves all loans and downloads CSV', async ({ page, browser }) => {
+  await page.goto('/');
+  await expect(page.getByRole('button', { name: 'Rückgabe bestätigen', exact: true })).toHaveCount(0);
+  await expect(page.locator('.deposit-summary')).toContainText('0,0100 SOL');
+  await expect(page.locator('.deposit-summary')).toContainText('kein Livekurs');
+  await page.getByRole('button', { name: 'Pfand hinterlegen · Demo starten' }).click();
+  await expect(page.getByRole('region', { name: 'Pfandbeleg' })).toContainText('Dein Becher. Dein Pfand.');
+  const context = await browser.newContext();
+  const business = await context.newPage();
+  await business.goto('/geschaeft?cup=LOOP-001');
+  await business.screenshot({ path: 'test-results/pfandloop-business-login.png', fullPage: true });
+  await business.getByRole('button', { name: 'Demo-Geschäft anmelden' }).click();
+  await expect(business.getByLabel('Rückgabe bei')).toBeDisabled();
+  await business.getByRole('checkbox').check();
+  await business.getByRole('button', { name: 'Rückgabe bestätigen', exact: true }).click();
+  await expect(business.getByRole('region', { name: 'Pfandbeleg' })).toContainText('Der Kreis ist geschlossen.');
+  await expect(business.getByRole('checkbox')).not.toBeChecked();
+  await business.getByRole('button', { name: 'Abmelden', exact: true }).click();
+  await expect(business.getByRole('button', { name: 'Demo-Geschäft anmelden' })).toBeVisible();
+  await context.close();
+  await page.reload();
+  await page.getByRole('button', { name: 'Pfand hinterlegen · Demo starten' }).click();
+  await page.getByRole('button', { name: 'Demo-Wallet', exact: true }).click();
+  await expect(page.locator('.loan-list li')).toHaveCount(2);
+  await expect(page.locator('.loan-status.returned')).toHaveCount(1);
+  await expect(page.locator('.loan-status.borrowed')).toHaveCount(1);
+  const identity = await page.locator('.wallet-identity code').innerText();
+  expect(identity).toMatch(/^USER-/);
+  const downloadPromise = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'CSV exportieren' }).click();
+  const download = await downloadPromise;
+  const csv = await readFile((await download.path())!, 'utf8');
+  expect(csv).toContain(identity); expect(csv.match(/LOOP-001/g)).toHaveLength(2);
+  expect(csv).toContain('returned'); expect(csv).toContain('borrowed');
+  await page.getByRole('button', { name: 'Noch offen (1)' }).click();
+  await expect(page.locator('.loan-list li')).toHaveCount(1);
+  await page.getByRole('button', { name: 'Alle Ausleihen (2)' }).click();
+  await page.locator('.loan-list li').last().scrollIntoViewIfNeeded();
+  await page.screenshot({ path: 'test-results/pfandloop-wallet-history.png' });
+  await page.getByRole('button', { name: 'Wallet schließen' }).click();
+  await openBusiness(page);
+  await page.getByRole('checkbox').check();
+  await page.getByRole('button', { name: 'Rückgabe bestätigen', exact: true }).click();
+  await expect(page.getByRole('region', { name: 'Pfandbeleg' })).toContainText('Der Kreis ist geschlossen.');
+});
 
 test('desktop: QR, borrow, persist on refresh, cross-location return', async ({ page }) => {
   const errors: string[] = [];
@@ -7,6 +61,12 @@ test('desktop: QR, borrow, persist on refresh, cross-location return', async ({ 
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Dein Kaffee geht.');
   await expect(page.getByRole('button', { name: 'Pfand hinterlegen · Demo starten' })).toBeEnabled();
+  await expect(page.locator('.deposit-summary')).toContainText('1,00');
+  await page.getByRole('button', { name: 'Demo-Wallet', exact: true }).click();
+  await expect(page.getByRole('dialog', { name: 'Deine Demo-Wallet.' })).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Verfügbares Demo-Guthaben' })).toContainText('20,00');
+  await expect(page.getByText('Noch keine Pfandbewegungen.', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Wallet schließen' }).click();
   await page.screenshot({ path: 'test-results/pfandloop-desktop.png', fullPage: true });
   await page.getByRole('button', { name: 'Behälter-QR-Code anzeigen' }).click();
   await expect(page.getByRole('dialog')).toBeVisible();
@@ -14,15 +74,28 @@ test('desktop: QR, borrow, persist on refresh, cross-location return', async ({ 
   await page.getByRole('button', { name: 'Verstanden' }).click();
   await page.getByRole('button', { name: 'Pfand hinterlegen · Demo starten' }).click();
   await expect(page.getByRole('region', { name: 'Pfandbeleg' })).toContainText('Dein Becher. Dein Pfand.');
+  await expect(page.getByRole('region', { name: 'Pfandbeleg' })).toContainText('1,00 €');
+  await page.getByRole('button', { name: 'Demo-Wallet', exact: true }).click();
+  await expect(page.getByRole('region', { name: 'Verfügbares Demo-Guthaben' })).toContainText('19,00');
+  await expect(page.locator('.wallet-history li')).toHaveCount(1);
+  await page.getByRole('button', { name: 'Wallet schließen' }).click();
   await page.reload();
   await expect(page.getByRole('region', { name: 'Pfandbeleg' })).toContainText('LOOP-001');
-  await page.getByRole('button', { name: 'Zurückgeben', exact: true }).click();
+  await page.getByRole('button', { name: 'Demo-Wallet', exact: true }).click();
+  await expect(page.getByRole('region', { name: 'Verfügbares Demo-Guthaben' })).toContainText('19,00');
+  await page.getByRole('button', { name: 'Wallet schließen' }).click();
+  await openBusiness(page);
   await expect(page.getByRole('button', { name: 'Rückgabe bestätigen', exact: true })).toBeDisabled();
   await page.getByRole('checkbox').check();
   await page.getByRole('button', { name: 'Rückgabe bestätigen', exact: true }).click();
   await expect(page.getByRole('region', { name: 'Pfandbeleg' })).toContainText('Der Kreis ist geschlossen.');
   await expect(page.getByRole('region', { name: 'Pfandbeleg' })).toContainText('Wiesenklang Festival');
   await page.screenshot({ path: 'test-results/pfandloop-return.png', fullPage: true });
+  await page.getByRole('link', { name: 'Nutzerseite', exact: true }).click();
+  await page.getByRole('button', { name: 'Demo-Wallet', exact: true }).click();
+  await expect(page.getByRole('region', { name: 'Verfügbares Demo-Guthaben' })).toContainText('20,00');
+  await expect(page.locator('.wallet-history li')).toHaveCount(2);
+  await page.screenshot({ path: 'test-results/pfandloop-wallet-desktop.png' });
   expect(errors).toEqual([]);
 });
 
@@ -30,6 +103,9 @@ test('phone: cup link, invalid ID, successful demo and no horizontal overflow', 
   await page.setViewportSize({ width: 375, height: 812 });
   await page.goto('/?cup=LOOP-002');
   await expect(page.getByLabel('Behälter-Nummer')).toHaveValue('LOOP-002');
+  await expect(page.locator('.deposit-summary')).toContainText('2,00');
+  await expect(page.locator('.festival-scene img')).toBeVisible();
+  await expect(page.locator('.festival-scene img')).toHaveJSProperty('naturalWidth', 1536);
   await expect(page.getByRole('button', { name: 'Pfand hinterlegen · Demo starten' })).toBeEnabled();
   await page.screenshot({ path: 'test-results/pfandloop-mobile.png', fullPage: true });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -38,7 +114,14 @@ test('phone: cup link, invalid ID, successful demo and no horizontal overflow', 
   await page.getByLabel('Behälter-Nummer').fill('LOOP-002');
   await page.getByRole('button', { name: 'Pfand hinterlegen · Demo starten' }).click();
   await expect(page.getByRole('region', { name: 'Pfandbeleg' })).toContainText('LOOP-002');
-  await page.getByRole('button', { name: 'Zurückgeben', exact: true }).click();
+  await expect(page.getByRole('region', { name: 'Pfandbeleg' })).toContainText('2,00 €');
+  await page.getByRole('button', { name: 'Demo-Wallet', exact: true }).click();
+  await expect(page.getByRole('region', { name: 'Verfügbares Demo-Guthaben' })).toContainText('18,00');
+  await page.screenshot({ path: 'test-results/pfandloop-wallet-mobile.png' });
+  expect(await page.getByRole('dialog').evaluate(el => el.scrollWidth <= el.clientWidth)).toBe(true);
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog')).not.toBeVisible();
+  await openBusiness(page);
   await page.getByRole('checkbox').check();
   await page.getByRole('button', { name: 'Rückgabe bestätigen', exact: true }).click();
   await expect(page.getByRole('region', { name: 'Pfandbeleg' })).toContainText('Der Kreis ist geschlossen.');
@@ -51,8 +134,29 @@ for (const width of [768, 1024]) {
     await page.goto('/?cup=LOOP-003');
     await expect(page.getByRole('button', { name: 'Pfand hinterlegen · Demo starten' })).toBeEnabled();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    await page.getByRole('button', { name: 'Zurückgeben', exact: true }).click();
+    await openBusiness(page);
     await expect(page.getByRole('heading', { name: 'Schließen wir den Kreis.' })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   });
 }
+
+test('lunch costs 5 euros; wallet handles API failure and retry', async ({ page }) => {
+  await page.goto('/?cup=LOOP-003');
+  await expect(page.locator('.deposit-summary')).toContainText('5,00');
+  await page.route('**/api/demo-wallet', route => route.fulfill({ status: 503, json: { error: 'Test unavailable' } }));
+  await page.getByRole('button', { name: 'Demo-Wallet', exact: true }).click();
+  await expect(page.getByRole('dialog').getByRole('alert')).toContainText('konnte nicht geladen');
+  await page.unroute('**/api/demo-wallet');
+  await page.getByRole('button', { name: 'Guthaben aktualisieren' }).click();
+  await expect(page.getByRole('region', { name: 'Verfügbares Demo-Guthaben' })).toContainText('20,00');
+  await page.getByRole('button', { name: 'Wallet schließen' }).click();
+  await page.getByRole('button', { name: 'Pfand hinterlegen · Demo starten' }).click();
+  await expect(page.getByRole('region', { name: 'Pfandbeleg' })).toContainText('5,00 €');
+  await page.getByRole('button', { name: 'Demo-Wallet', exact: true }).click();
+  await expect(page.getByRole('region', { name: 'Verfügbares Demo-Guthaben' })).toContainText('15,00');
+  await page.getByRole('button', { name: 'Wallet schließen' }).click();
+  await openBusiness(page);
+  await page.getByRole('checkbox').check();
+  await page.getByRole('button', { name: 'Rückgabe bestätigen', exact: true }).click();
+  await expect(page.getByRole('region', { name: 'Pfandbeleg' })).toContainText('Der Kreis ist geschlossen.');
+});

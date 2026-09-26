@@ -1,7 +1,6 @@
 import { Connection, Keypair, PublicKey, Transaction, TransactionInstruction, type TransactionResponse } from '@solana/web3.js';
 import { createTokenAccount, transferTokens } from './token';
 import bs58 from 'bs58';
-import { DEPOSIT_ATOMIC } from '../shared/model';
 import { AppError, type Payments } from './service';
 import type { Loan } from './store';
 
@@ -24,10 +23,10 @@ export class SolanaPayments implements Payments {
     if (await this.connection.getGenesisHash() !== DEVNET_GENESIS)
       throw new AppError(503, 'Dieser Prototyp erlaubt ausschließlich Solana Devnet.');
   }
-  private transfer(from: PublicKey, to: PublicKey, payer: PublicKey, memo: string) {
+  private transfer(from: PublicKey, to: PublicKey, payer: PublicKey, memo: string, amountAtomic: number) {
     return new Transaction().add(
       createTokenAccount(payer, to, USDC_MINT),
-      transferTokens(from, to, USDC_MINT, BigInt(DEPOSIT_ATOMIC), 6),
+      transferTokens(from, to, USDC_MINT, BigInt(amountAtomic), 6),
       new TransactionInstruction({ programId: MEMO, keys: [], data: Buffer.from(memo) }),
     );
   }
@@ -37,7 +36,7 @@ export class SolanaPayments implements Payments {
     try { payer = new PublicKey(loan.payer); } catch { throw new AppError(400, 'Ungültige Solana-Wallet-Adresse.'); }
     if (!PublicKey.isOnCurve(payer.toBytes()) || payer.equals(this.treasury.publicKey))
       throw new AppError(400, 'Bitte eine eigene Kunden-Wallet verwenden.');
-    const tx = this.transfer(payer, this.treasury.publicKey, payer, `PfandLoop:deposit:${loan.id}`);
+    const tx = this.transfer(payer, this.treasury.publicKey, payer, `PfandLoop:deposit:${loan.id}`, loan.depositAtomic);
     tx.feePayer = payer;
     tx.recentBlockhash = (await this.connection.getLatestBlockhash()).blockhash;
     return {
@@ -51,7 +50,7 @@ export class SolanaPayments implements Payments {
   }
   async prepareRefund(loan: Loan) {
     await this.assertDevnet();
-    const tx = this.transfer(this.treasury.publicKey, new PublicKey(loan.payer), this.treasury.publicKey, `PfandLoop:refund:${loan.id}`);
+    const tx = this.transfer(this.treasury.publicKey, new PublicKey(loan.payer), this.treasury.publicKey, `PfandLoop:refund:${loan.id}`, loan.depositAtomic);
     tx.feePayer = this.treasury.publicKey;
     tx.recentBlockhash = (await this.connection.getLatestBlockhash()).blockhash;
     tx.sign(this.treasury);
