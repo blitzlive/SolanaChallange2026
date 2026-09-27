@@ -541,11 +541,11 @@ export function App() {
                           {loan.depositSignature && (
                             <div style={{ marginTop: '8px' }}>
                               <a
-                                href={`https://explorer.solana.com/tx/${loan.depositSignature}?cluster=devnet`}
+                                href={`https://explorer.solana.com/tx/${loan.depositSignature}?cluster=mainnet-beta`}
                                 target="_blank"
                                 rel="noreferrer"
                                 className="tx-explorer-link"
-                                title="View Proof of Identity on Solana Devnet Explorer"
+                                title="View Proof of Identity on Solana Mainnet Beta Explorer"
                               >
                                 <ShieldCheck size={12} />
                                 <span>Proof of Identity</span>
@@ -589,11 +589,11 @@ export function App() {
                             {entry.signature && (
                               <div>
                                 <a
-                                  href={`https://explorer.solana.com/tx/${entry.signature}?cluster=devnet`}
+                                  href={`https://explorer.solana.com/tx/${entry.signature}?cluster=mainnet-beta`}
                                   target="_blank"
                                   rel="noreferrer"
                                   className="tx-explorer-link"
-                                  title="View on Solana Explorer"
+                                  title="View on Solana Mainnet Beta Explorer"
                                 >
                                   <ShieldCheck size={11} />
                                   <span>View on Solana Explorer</span>
@@ -902,11 +902,11 @@ export function App() {
                                     <span>{formatEuro(item.deposit)}</span>
                                     {item.signature && (
                                       <a
-                                        href={`https://explorer.solana.com/tx/${item.signature}?cluster=devnet`}
+                                        href={`https://explorer.solana.com/tx/${item.signature}?cluster=mainnet-beta`}
                                         target="_blank"
                                         rel="noreferrer"
                                         style={{ color: 'var(--forest)', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '2px' }}
-                                        title="View Proof of Identity on Solana Devnet"
+                                        title="View Proof of Identity on Solana Mainnet Beta"
                                       >
                                         Proof <ArrowUpRight size={12} />
                                       </a>

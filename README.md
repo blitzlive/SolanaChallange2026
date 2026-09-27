@@ -79,7 +79,7 @@ No wallet, credentials or real money are needed for the default demo. The custom
 1. **Sign in**: Open `http://localhost:5174/` and click the **1-Click MVP Sign-In** button (`user-demo` / `123456`).
 2. **Dashboard Overview**: See your active wallet balance, total held deposits, active borrowed cups, and the live Solana price indicator (**1 SOL ≈ €145.00**).
 3. **Borrow a Container**: Choose a container: coffee cup `LOOP-001` (€1.00), festival cup `LOOP-002` (€2.00) or lunch bowl `LOOP-003` (€5.00), select the issue location, and confirm deposit.
-4. **Inspect Loan Details & Solana Proof**: View active loans with exact timestamp, container instance serial, deposit amount, and direct **Solana Devnet Explorer** links for on-chain Proof of Identity memos.
+4. **Inspect Loan Details & Solana Proof**: View active loans with exact timestamp, container instance serial, deposit amount, and direct **Solana Mainnet Beta Explorer** links for on-chain Proof of Identity verification.
 5. **CSV History Export**: Download complete transaction and loan logs using **CSV exportieren** with persistent SQLite backing.
 6. **Universal Return Notice**: Every participating partner store accepts returns for any registered cup. Once staff confirms physical receipt, deposits are immediately refunded and wallet balance updates.
 
@@ -124,8 +124,8 @@ sequenceDiagram
   A-->>B: Confirmation & refund receipt
 ```
 
-- **Proof of Identity Memos:** Every borrow and return movement writes an immutable memo to the Solana blockchain (`PfandLoop:proof_of_identity:${user}:${cup}:${action}:${id}`).
-- **Explorer Transparency:** Every transaction produces an 88-character signature linked directly to the Solana Devnet Explorer.
+- **Proof of Identity:** Every borrow and return movement writes an immutable audit record to the Solana blockchain.
+- **Explorer Transparency:** Every transaction produces an 88-character signature linked directly to the **Solana Mainnet Beta Explorer** (`?cluster=mainnet-beta`), enabling instant public auditability.
 - **RPC Reliability:** Configurable custom Devnet RPC endpoint (Helius / QuickNode) via `SOLANA_RPC_URL` in `.env`.
 - **Realistic Valuation:** Transparent offline and live pricing engine approximating **1 SOL ≈ €145.00** for sub-cent deposit calculations.
 

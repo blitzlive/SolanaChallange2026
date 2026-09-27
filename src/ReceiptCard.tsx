@@ -14,7 +14,7 @@ export function ReceiptCard({ receipt, onRefresh, busy }: { receipt: Receipt; on
       <div><dt>Recipient</dt><dd className="address" title={receipt.payer}>{receipt.mode === 'demo' ? `Member (${receipt.payer.slice(0, 12)}…)` : `${receipt.payer.slice(0, 8)}…${receipt.payer.slice(-6)}`}</dd></div></dl>
     <p className="fineprint">{receipt.mode === 'demo' ? 'MVP test receipt. Simulation on local ledger.' : 'Solana Devnet test tokens. Custody held by operator wallet.'}</p>
     <div className="receipt-actions"><button className="text-button" onClick={onRefresh} disabled={busy}><RotateCcw size={14} /> Refresh status</button>
-      {signature && <a href={`https://explorer.solana.com/tx/${signature}?cluster=devnet`} target="_blank" rel="noreferrer">View on Solana Explorer <ArrowUpRight size={14} /></a>}</div>
+      {signature && <a href={`https://explorer.solana.com/tx/${signature}?cluster=mainnet-beta`} target="_blank" rel="noreferrer" title="View Proof of Identity on Solana Mainnet Beta Explorer">View on Solana Explorer (Mainnet Beta) <ArrowUpRight size={14} /></a>}</div>
     <details><summary>Receipt ID for recovery</summary><code>{receipt.id}</code><p className="fineprint">Keep private: this ID allows recovery of your receipt.</p></details>
   </section>;
 }

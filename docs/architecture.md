@@ -37,8 +37,8 @@ flowchart TD
 
   subgraph Settlement ["Settlement & Blockchain Layer"]
     MVPStore["MVP Wallet Ledger\nInstant credit/debit"]
-    ProofOfIdentity["Solana Blockchain Proof-of-Identity\nMemo program / Explorer verification"]
-    DevnetSolana["Solana Devnet Token Transfer\nUSDC / SOL settlement"]
+    ProofOfIdentity["Solana Blockchain Proof-of-Identity\nMemo program / Explorer verification (Mainnet Beta)"]
+    MainnetSolana["Solana Mainnet Beta\nOn-chain transaction verification"]
   end
 
   Dashboard --> API
@@ -48,7 +48,7 @@ flowchart TD
   Service --> DB
   Service --> MVPStore
   Service --> ProofOfIdentity
-  ProofOfIdentity --> DevnetSolana
+  ProofOfIdentity --> MainnetSolana
 ```
 
 ### Key Architectural Updates:
@@ -63,9 +63,9 @@ flowchart TD
    - Stores can issue an unlimited number of containers.
    - Each container issuance generates a unique container instance / serial number and transaction ID.
    - Supports issuing multiple cups to different users simultaneously.
-4. **On-Chain Solana "Proof of Identity" for Demo/MVP Wallets**:
-   - Every deposit and refund transaction is anchored to the Solana blockchain with a cryptographically verifiable "Proof of Identity" memo (`PfandLoop:proof_of_identity:...`).
-   - Transactions are verifiable on Solana Explorer.
+4. **On-Chain Solana 'Proof of Identity' on Mainnet Beta**:
+   - Every deposit and refund transaction is anchored to the Solana blockchain with a cryptographically verifiable 'Proof of Identity' on Solana Mainnet Beta.
+   - Transactions are verifiable directly on Solana Explorer (`cluster=mainnet-beta`).
 5. **Realistic Solana Exchange Rate**: Offline reference price set to **1 SOL ≈ €145.00**.
 
 

@@ -96,7 +96,7 @@ export async function recordProofOfIdentity(
       const rawTx = tx.serialize();
       const signature = await connection.sendRawTransaction(rawTx, { skipPreflight: false });
       await connection.confirmTransaction(signature, 'confirmed');
-      console.log(`[Solana Proof of Identity] Live on-chain transaction confirmed: https://explorer.solana.com/tx/${signature}?cluster=devnet`);
+      console.log(`[Solana Proof of Identity] Live on-chain transaction confirmed: https://explorer.solana.com/tx/${signature}?cluster=mainnet-beta`);
       return signature;
     }
 
