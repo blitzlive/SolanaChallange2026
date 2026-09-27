@@ -33,7 +33,7 @@ describe('deposit lifecycle', () => {
   it('does not refund an unconfirmed deposit', async () => {
     const service = new LoanService(makeStore(), 'devnet', adapter());
     const loan = await service.borrow(input);
-    await expect(service.refund(loan.receipt.id, 'festival')).rejects.toThrow('noch nicht bestätigt');
+    await expect(service.refund(loan.receipt.id, 'festival')).rejects.toThrow('Deposit not yet confirmed');
   });
   it('keeps a deposit reserved if verification rejects it', async () => {
     const payments = adapter(); vi.mocked(payments.verifyDeposit).mockRejectedValue(new Error('invalid payment'));
@@ -64,7 +64,7 @@ describe('deposit lifecycle', () => {
     const service = new LoanService(makeStore(), 'devnet', payments);
     const loan = await service.borrow(input); await service.confirm(loan.receipt.id, 'deposit-signature');
     expect((await service.refund(loan.receipt.id, 'festival')).status).toBe('refund_pending');
-    await expect(service.borrow(input)).rejects.toThrow('bereits reserviert');
+    await expect(service.borrow(input)).rejects.toThrow('already in circulation');
   });
   it('survives closing and reopening the database', async () => {
     mkdirSync('.data/tests', { recursive: true });

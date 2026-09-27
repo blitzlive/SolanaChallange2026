@@ -1,23 +1,74 @@
-# PfandLoop architecture
+# PfandLoop Architecture
 
-## September 26: profiles and history extension
+## MVP: Together for our environment
 
-Two pages share the existing origin: `/` for customers and `/geschaeft` for merchants. Merchant login creates a random, eight-hour server-memory session bound to one location. Devnet login requires the operator secret; demo login is explicitly simulated. Both return endpoints require the session and reject a mismatched location. Logout revokes it. All registered containers are accepted across locations. Refund amounts and original payers remain immutable.
+PfandLoop is an open, Solana-powered reusable container deposit system designed for instant, cross-merchant micro-settlements. Customers access their personal **Customer Dashboard** (protected by User Login) to monitor their active cups, deposits, and transaction history. Participating merchants access the dedicated **Merchant Station** (`/geschaeft`, protected by Merchant Login) to issue cups to customers (by Member/User ID, with future QR scan support) and confirm physical cup returns with automated deposit refunds.
 
 ```mermaid
-flowchart LR
-  Customer[Customer page /] --> Wallet[Private wallet + all loans + CSV]
-  Business[Merchant page /geschaeft] --> Session[Login + location-bound session]
-  Session --> Return[Physical return confirmation]
-  Wallet --> API[Express + Zod]
-  Return --> API
-  API --> DB[(Shared SQLite loans)]
-  API --> Adapter[Simulation / existing Devnet adapter]
+flowchart TD
+  subgraph Auth ["Separate Authentication Gates"]
+    UserGate["User Login Mask (/)\nCredentials: user-demo / 123456"]
+    MerchantGate["Merchant Login Mask (/geschaeft)\nCredentials: demo / 123456"]
+  end
+
+  subgraph Customer ["Customer Portal (/)"]
+    UserGate --> Dashboard["Customer Dashboard\nWallet & Active Containers"]
+    Dashboard --> MemberCard["Digital Membership Card\nUser ID / QR code"]
+    Dashboard --> UniversalNotice["Universal Return Notice\nAccepted across all partner stores"]
+  end
+
+  subgraph Merchant ["Merchant Station (/geschaeft)"]
+    MerchantGate --> Station["Station Workspace\nFiltered by Location Type"]
+    Station --> IssueTab["Cup Issuance (Ausgabe)\nLocation-Restricted & Infinite Instance Generation\nMulti-cup / Multi-user issuance"]
+    Station --> ReturnTab["Cup Return (Rücknahme)\nPhysical receipt verification\nAutomated refund"]
+  end
+
+  subgraph ValidationRules ["Location-Based Cup Constraints"]
+    CafeRule["Café Morgenrot: Coffee Cups & Lunch Bowls ONLY (No Festival Cups)"]
+    FestivalRule["Wiesenklang Festival: Festival Cups ONLY (No Coffee/Bowls)"]
+    ReturnRule["Universal Return: Any store accepts any cup"]
+  end
+
+  subgraph Engine ["Backend API & Core Engine"]
+    API["Express API + Zod Validation\nRate-limiting & security headers"]
+    Service["Loan State Machine\nReserve -> Borrowed -> Refund -> Returned"]
+    DB[("SQLite Database\nInfinite Cup Instances, Loans & Wallets")]
+  end
+
+  subgraph Settlement ["Settlement & Blockchain Layer"]
+    MVPStore["MVP Wallet Ledger\nInstant credit/debit"]
+    ProofOfIdentity["Solana Blockchain Proof-of-Identity\nMemo program / Explorer verification"]
+    DevnetSolana["Solana Devnet Token Transfer\nUSDC / SOL settlement"]
+  end
+
+  Dashboard --> API
+  Station --> API
+  API --> ValidationRules
+  ValidationRules --> Service
+  Service --> DB
+  Service --> MVPStore
+  Service --> ProofOfIdentity
+  ProofOfIdentity --> DevnetSolana
 ```
 
-Demo display units are simulated EUR, with 1/2/5 catalog prices; underlying integer accounting and historical snapshots remain intact. A clearly labelled illustrative EUR/SOL rate is informational only. Devnet still settles test USDC, separately labelled. A derived public user ID is not an authentication credential. Wallet history/CSV require the original demo capability and contain no bearer capability or private receipt IDs in exports. SQLite remains the source of truth and retains repeated loans of the same cup. Sessions reset on server restart; production user/staff identity management remains future work.
+### Key Architectural Updates:
+1. **Two Distinct Views & Login Masks**:
+   - **User View (`/`)**: Requires customer login (`user-demo` / `123456`). Leads to the personal wallet dashboard.
+   - **Merchant View (`/geschaeft`)**: Requires merchant staff login (`demo` / `123456`). Leads to container issuance & returns.
+2. **Location-Based Container Issuance Constraints**:
+   - **Café (Café Morgenrot)**: Can ONLY issue Coffee cups (`LOOP-001`) and Lunch Bowls (`LOOP-003`). Issuing Festival cups is strictly prohibited.
+   - **Festival (Wiesenklang Festival)**: Can ONLY issue Festival cups (`LOOP-002`). Issuing Coffee cups or Bowls is strictly prohibited.
+   - **Returns**: Any participating location can accept and refund any registered cup.
+3. **Infinite Cup Issuance with Unique Instance & Transaction IDs**:
+   - Stores can issue an unlimited number of containers.
+   - Each container issuance generates a unique container instance / serial number and transaction ID.
+   - Supports issuing multiple cups to different users simultaneously.
+4. **On-Chain Solana "Proof of Identity" for Demo/MVP Wallets**:
+   - Every deposit and refund transaction is anchored to the Solana blockchain with a cryptographically verifiable "Proof of Identity" memo (`PfandLoop:proof_of_identity:...`).
+   - Transactions are verifiable on Solana Explorer.
+5. **Realistic Solana Exchange Rate**: Offline reference price set to **1 SOL ≈ €145.00**.
 
-## Scope and assumptions
+
 
 Build a reusable-container deposit pilot for independent cafes and festival stands. The first vertical slice is borrow -> payment -> staff-verified return -> refund to the original payer. Two fictional locations and three registered containers make the demo reproducible. The user explicitly requested implementation; this document records the working assumptions for that first iteration.
 

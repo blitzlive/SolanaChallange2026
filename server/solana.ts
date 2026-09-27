@@ -9,10 +9,10 @@ export const USDC_MINT = new PublicKey('4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJD
 const MEMO = new PublicKey('MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr');
 
 export function assertDepositMessage(expected: string | null, tx: TransactionResponse | null) {
-  if (!tx) throw new AppError(409, 'Zahlung noch nicht final bestätigt. Bitte erneut prüfen.');
-  if (!tx.meta || tx.meta.err !== null) throw new AppError(422, 'Die Blockchain-Zahlung ist fehlgeschlagen.');
+  if (!tx) throw new AppError(409, 'Payment not yet confirmed. Please verify again.');
+  if (!tx.meta || tx.meta.err !== null) throw new AppError(422, 'Blockchain transaction failed.');
   if (!expected || Buffer.from(tx.transaction.message.serialize()).toString('base64') !== expected)
-    throw new AppError(422, 'Diese Transaktion gehört nicht zu diesem Pfandbeleg.');
+    throw new AppError(422, 'This transaction does not belong to this deposit receipt.');
 }
 export class SolanaPayments implements Payments {
   readonly connection: Connection;
@@ -21,7 +21,7 @@ export class SolanaPayments implements Payments {
   }
   async assertDevnet() {
     if (await this.connection.getGenesisHash() !== DEVNET_GENESIS)
-      throw new AppError(503, 'Dieser Prototyp erlaubt ausschließlich Solana Devnet.');
+      throw new AppError(503, 'This prototype exclusively permits Solana Devnet.');
   }
   private transfer(from: PublicKey, to: PublicKey, payer: PublicKey, memo: string, amountAtomic: number) {
     return new Transaction().add(
@@ -33,9 +33,9 @@ export class SolanaPayments implements Payments {
   async prepareDeposit(loan: Loan) {
     await this.assertDevnet();
     let payer: PublicKey;
-    try { payer = new PublicKey(loan.payer); } catch { throw new AppError(400, 'Ungültige Solana-Wallet-Adresse.'); }
+    try { payer = new PublicKey(loan.payer); } catch { throw new AppError(400, 'Invalid Solana wallet address.'); }
     if (!PublicKey.isOnCurve(payer.toBytes()) || payer.equals(this.treasury.publicKey))
-      throw new AppError(400, 'Bitte eine eigene Kunden-Wallet verwenden.');
+      throw new AppError(400, 'Please use an independent customer wallet.');
     const tx = this.transfer(payer, this.treasury.publicKey, payer, `PfandLoop:deposit:${loan.id}`, loan.depositAtomic);
     tx.feePayer = payer;
     tx.recentBlockhash = (await this.connection.getLatestBlockhash()).blockhash;
@@ -59,12 +59,12 @@ export class SolanaPayments implements Payments {
   async settleRefund(raw: string, signature: string) {
     await this.assertDevnet();
     const status = (await this.connection.getSignatureStatuses([signature], { searchTransactionHistory: true })).value[0];
-    if (status?.err) throw new AppError(409, 'Rückzahlung fehlgeschlagen. Betreiber muss den gespeicherten Vorgang prüfen.');
+    if (status?.err) throw new AppError(409, 'Refund failed. Operator must investigate the saved transaction.');
     if (status?.confirmationStatus === 'finalized') return true;
     if (status) return false;
     const tx = Transaction.from(Buffer.from(raw, 'base64'));
     const valid = await this.connection.isBlockhashValid(tx.recentBlockhash!);
-    if (!valid.value) throw new AppError(409, 'Rückzahlung abgelaufen oder unklar. Betreiberprüfung nötig; keine zweite Zahlung erzeugt.');
+    if (!valid.value) throw new AppError(409, 'Refund expired or uncertain. Operator review required; no duplicate payment created.');
     await this.connection.sendRawTransaction(Buffer.from(raw, 'base64'), { maxRetries: 2, preflightCommitment: 'finalized' });
     return false;
   }

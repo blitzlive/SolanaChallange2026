@@ -26,18 +26,18 @@ describe('on-chain verification', () => {
   it('accepts only the exact stored message', () => {
     const { response, expected } = fixture();
     expect(() => assertDepositMessage(expected, response)).not.toThrow();
-    expect(() => assertDepositMessage(fixture().expected, response)).toThrow('gehört nicht');
+    expect(() => assertDepositMessage(fixture().expected, response)).toThrow('does not belong');
   });
   it('rejects missing, failed and unbound payments', () => {
     const { response, expected } = fixture();
-    expect(() => assertDepositMessage(expected, null)).toThrow('noch nicht');
-    expect(() => assertDepositMessage(null, response)).toThrow('gehört nicht');
+    expect(() => assertDepositMessage(expected, null)).toThrow('not yet confirmed');
+    expect(() => assertDepositMessage(null, response)).toThrow('does not belong');
     response.meta!.err = { InstructionError: [0, 'InvalidArgument'] };
-    expect(() => assertDepositMessage(expected, response)).toThrow('fehlgeschlagen');
+    expect(() => assertDepositMessage(expected, response)).toThrow('failed');
   });
   it('rejects a non-Devnet RPC before any transaction is constructed', async () => {
     const adapter = new SolanaPayments('http://localhost:8899', Keypair.generate());
     vi.spyOn(adapter.connection, 'getGenesisHash').mockResolvedValue('mainnet-hash');
-    await expect(adapter.assertDevnet()).rejects.toThrow('ausschließlich Solana Devnet');
+    await expect(adapter.assertDevnet()).rejects.toThrow('exclusively permits Solana Devnet');
   });
 });

@@ -61,4 +61,34 @@ describe('API boundaries', () => {
     const second = await request(app).post(path).set('Authorization', authorization).send({ location: 'festival', physicallyReceived: true });
     expect(first.status).toBe(200); expect(second.body).toEqual(first.body);
   });
+  it('authenticates user-demo and rejects invalid credentials', async () => {
+    const app = setup();
+    const valid = await request(app).post('/api/user/session').send({ username: 'user-demo', password: '123456' });
+    expect(valid.status).toBe(201);
+    expect(valid.body.token).toBeDefined();
+    expect(valid.body.user.name).toBe('Alex Green');
+    const invalid = await request(app).post('/api/user/session').send({ username: 'user-demo', password: 'wrongpassword' });
+    expect(invalid.status).toBe(401);
+  });
+  it('enforces location-based cup issuance restrictions', async () => {
+    const app = setup();
+    // Café trying to issue festival cup (LOOP-002) -> REJECTED
+    const cafeFestivalCup = await request(app).post('/api/loans').send({ cupId: 'LOOP-002', location: 'cafe', payer: 'demo-payer-123' });
+    expect(cafeFestivalCup.status).toBe(400);
+    expect(cafeFestivalCup.body.error).toContain('Café Morgenrot cannot issue festival cups');
+
+    // Festival trying to issue coffee cup (LOOP-001) -> REJECTED
+    const festivalCoffeeCup = await request(app).post('/api/loans').send({ cupId: 'LOOP-001', location: 'festival', payer: 'demo-payer-123' });
+    expect(festivalCoffeeCup.status).toBe(400);
+    expect(festivalCoffeeCup.body.error).toContain('Wiesenklang Festival cannot issue normal coffee cups');
+
+    // Café issuing Coffee cup instance (LOOP-001-A482) -> ACCEPTED with Proof of Identity signature
+    const cafeCoffeeInstance = await request(app).post('/api/loans').send({ cupId: 'LOOP-001-A482', location: 'cafe', payer: 'demo-payer-123' });
+    expect(cafeCoffeeInstance.status).toBe(201);
+    expect(cafeCoffeeInstance.body.receipt.depositSignature).toBeDefined();
+
+    // Festival issuing Festival cup instance (LOOP-002-B910) -> ACCEPTED
+    const festivalCupInstance = await request(app).post('/api/loans').send({ cupId: 'LOOP-002-B910', location: 'festival', payer: 'demo-payer-123' });
+    expect(festivalCupInstance.status).toBe(201);
+  });
 });

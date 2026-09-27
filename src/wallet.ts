@@ -10,14 +10,14 @@ declare global { interface Window { phantom?: { solana?: Phantom } } }
 
 export async function connectWallet() {
   const provider = window.phantom?.solana;
-  if (!provider?.isPhantom) throw new Error('Phantom fehlt. Öffne diese Seite im Phantom-Browser oder nutze die Browser-Erweiterung. Stelle Phantom auf Devnet.');
+  if (!provider?.isPhantom) throw new Error('Phantom wallet not found. Please install the Phantom browser extension or open this page in Phantom mobile browser, and set network to Devnet.');
   const { publicKey } = await provider.connect();
   return publicKey.toBase58();
 }
 export async function pay(transaction: string, expectedPayer: string) {
   const provider = window.phantom?.solana;
   if (!provider || provider.publicKey?.toBase58() !== expectedPayer)
-    throw new Error('Bitte die ursprüngliche Wallet verbinden.');
+    throw new Error('Please connect the original payer wallet.');
   const { Transaction } = await import('@solana/web3.js');
   const { Buffer } = await import('buffer');
   const decoded = Transaction.from(Buffer.from(transaction, 'base64'));

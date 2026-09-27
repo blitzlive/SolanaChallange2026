@@ -8,7 +8,7 @@ export function walletCsv(wallet: DemoWallet): string {
   };
   const site = (id: string | null) => locations.find(location => location.id === id)?.name ?? '';
   const rows = [
-    ['Nutzer-ID', 'Ausleihe-ID', 'Becher-ID', 'Bezeichnung', 'Status', 'Pfand EUR (Simulation)', 'Ausgeliehen am', 'Ausgabeort', 'Zurückgegeben am', 'Rückgabeort'],
+    ['User ID', 'Loan ID', 'Cup ID', 'Description', 'Status', 'Deposit EUR (MVP)', 'Borrowed At', 'Issue Location', 'Returned At', 'Return Location'],
     ...wallet.loans.map(loan => [wallet.userId, loan.loanId, loan.cupId, loan.name, loan.status,
       formatUsdc(loan.depositAtomic), loan.borrowedAt, site(loan.borrowLocation), loan.returnedAt, site(loan.returnLocation)]),
   ];

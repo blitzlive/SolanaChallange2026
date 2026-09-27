@@ -6,15 +6,16 @@ export function ReceiptCard({ receipt, onRefresh, busy }: { receipt: Receipt; on
   const returned = receipt.status === 'returned';
   const pending = receipt.status === 'reserved' || receipt.status === 'refund_pending';
   const signature = returned ? receipt.refundSignature : receipt.depositSignature;
-  return <section className={`receipt ${returned ? 'returned' : ''}`} aria-label="Pfandbeleg">
+  return <section className={`receipt ${returned ? 'returned' : ''}`} aria-label="Deposit Receipt">
     <div className="receipt-heading"><span className="receipt-icon">{pending ? <Clock size={22} /> : <Check size={22} />}</span>
-      <div><span className="eyebrow">DEIN PFANDBELEG</span><h3>{returned ? 'Der Kreis ist geschlossen.' : receipt.status === 'reserved' ? 'Zahlung noch offen.' : receipt.status === 'refund_pending' ? 'Rückzahlung wird bestätigt.' : 'Dein Becher. Dein Pfand.'}</h3></div></div>
-    <dl><div><dt>Behälter</dt><dd>{receipt.cupId}</dd></div><div><dt>{returned ? 'Zurückgezahlt' : 'Pfandbetrag'}</dt><dd>{receipt.mode === 'demo' ? `${formatEuro(receipt.depositAtomic)} · Simulation` : `${formatUsdc(receipt.depositAtomic)} Test-USDC`}</dd></div>
-      <div><dt>{returned ? 'Rückgabestelle' : 'Ausgabestelle'}</dt><dd>{locations.find(l => l.id === (receipt.returnLocation ?? receipt.borrowLocation))?.name}</dd></div>
-      <div><dt>Empfänger</dt><dd className="address" title={receipt.payer}>{receipt.mode === 'demo' ? 'Deine Demo-Wallet' : `${receipt.payer.slice(0, 8)}…${receipt.payer.slice(-6)}`}</dd></div></dl>
-    <p className="fineprint">{receipt.mode === 'demo' ? 'Simulierter Beleg. Es wurde kein Geld bewegt.' : 'Testgeld auf Solana Devnet. Verwahrung durch die Betreiber-Wallet.'}</p>
-    <div className="receipt-actions"><button className="text-button" onClick={onRefresh} disabled={busy}><RotateCcw size={14} /> Status aktualisieren</button>
-      {signature && <a href={`https://explorer.solana.com/tx/${signature}?cluster=devnet`} target="_blank" rel="noreferrer">Transaktion <ArrowUpRight size={14} /></a>}</div>
-    <details><summary>Beleg-ID für Wiederherstellung</summary><code>{receipt.id}</code><p className="fineprint">Privat aufbewahren: Diese ID erlaubt den Zugriff auf deinen Beleg.</p></details>
+      <div><span className="eyebrow">DEPOSIT RECEIPT</span><h3>{returned ? 'The loop is closed. Deposit refunded.' : receipt.status === 'reserved' ? 'Payment pending confirmation.' : receipt.status === 'refund_pending' ? 'Refund in progress.' : 'Cup borrowed. Deposit held.'}</h3></div></div>
+    <dl><div><dt>Container</dt><dd>{receipt.cupId}</dd></div><div><dt>{returned ? 'Refunded' : 'Deposit Amount'}</dt><dd>{receipt.mode === 'demo' ? `${formatEuro(receipt.depositAtomic)} · MVP` : `${formatUsdc(receipt.depositAtomic)} Test-USDC`}</dd></div>
+      <div><dt>{returned ? 'Return Station' : 'Issue Station'}</dt><dd>{locations.find(l => l.id === (receipt.returnLocation ?? receipt.borrowLocation))?.name}</dd></div>
+      <div><dt>Recipient</dt><dd className="address" title={receipt.payer}>{receipt.mode === 'demo' ? `Member (${receipt.payer.slice(0, 12)}…)` : `${receipt.payer.slice(0, 8)}…${receipt.payer.slice(-6)}`}</dd></div></dl>
+    <p className="fineprint">{receipt.mode === 'demo' ? 'MVP test receipt. Simulation on local ledger.' : 'Solana Devnet test tokens. Custody held by operator wallet.'}</p>
+    <div className="receipt-actions"><button className="text-button" onClick={onRefresh} disabled={busy}><RotateCcw size={14} /> Refresh status</button>
+      {signature && <a href={`https://explorer.solana.com/tx/${signature}?cluster=devnet`} target="_blank" rel="noreferrer">View on Solana Explorer <ArrowUpRight size={14} /></a>}</div>
+    <details><summary>Receipt ID for recovery</summary><code>{receipt.id}</code><p className="fineprint">Keep private: this ID allows recovery of your receipt.</p></details>
   </section>;
 }
+
