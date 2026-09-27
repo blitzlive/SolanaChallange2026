@@ -275,7 +275,7 @@ export function App() {
     const parsed = cupIdSchema.parse(returnCupId);
     const updated = await request<Receipt>(
       `/returns/${parsed}`,
-      { location: merchantSession.location, physicallyReceived: received, userId: returnUserId.trim() || undefined },
+      { location: merchantSession.location, physicallyReceived: received },
       merchantSession.token,
     );
     setResult({ receipt: updated });
