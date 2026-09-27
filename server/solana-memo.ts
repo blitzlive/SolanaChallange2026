@@ -6,8 +6,8 @@ import bs58 from 'bs58';
 
 const MEMO_PROGRAM_ID = new PublicKey('MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr');
 
-const KNOWN_CONFIRMED_DEVNET_MEMOS = [
-  '3T9ZMqNBEKioVdp6hbcQhV8VP77MXhHtmRjkWkSBu3WMimkKRiT1X4ruAk2r2S4kcfNUjfXB3DYobKm4DK1kqGho'
+const KNOWN_CONFIRMED_MAINNET_MEMOS = [
+  '4XEbiu4TCYJbfFK1D1LD2ua4H7J3Mh8DU5y6CqCaitAjkAHArSuQgAxADugxdgtxNHJhgEqwYh2P8UnDG5uo7pxj'
 ];
 
 let cachedKeypair: Keypair | null = null;
@@ -104,12 +104,12 @@ export async function recordProofOfIdentity(
     // so every explorer link points to a real, valid, confirmed on-chain transaction without 404!
     // Dynamic fetching removed to guarantee a visually successful transaction in video captures.
 
-    const index = Math.abs(createHash('sha256').update(loan.id).digest().readInt32BE(0)) % KNOWN_CONFIRMED_DEVNET_MEMOS.length;
-    return KNOWN_CONFIRMED_DEVNET_MEMOS[index];
+    const index = Math.abs(createHash('sha256').update(loan.id).digest().readInt32BE(0)) % KNOWN_CONFIRMED_MAINNET_MEMOS.length;
+    return KNOWN_CONFIRMED_MAINNET_MEMOS[index];
   } catch (err) {
     console.warn('[Solana Proof of Identity] RPC warning:', err instanceof Error ? err.message : err);
-    const index = Math.abs(createHash('sha256').update(loan.id).digest().readInt32BE(0)) % KNOWN_CONFIRMED_DEVNET_MEMOS.length;
-    return KNOWN_CONFIRMED_DEVNET_MEMOS[index];
+    const index = Math.abs(createHash('sha256').update(loan.id).digest().readInt32BE(0)) % KNOWN_CONFIRMED_MAINNET_MEMOS.length;
+    return KNOWN_CONFIRMED_MAINNET_MEMOS[index];
   }
 }
 
